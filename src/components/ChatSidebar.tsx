@@ -1,15 +1,53 @@
 import { Plus, MessageSquare, Trash2, Zap } from "lucide-react";
-import { DUMMY_HISTORY } from "@/lib/ai-router";
 import { Button } from "@/components/ui/button";
+
+// 🔥 Firebase
+import { db } from "../firebase";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+} from "firebase/firestore";
+
+import { useEffect, useState } from "react";
 
 interface ChatSidebarProps {
   onNewChat: () => void;
   onClearChat: () => void;
+  onSelectChat: (chatId: string) => void; // 🔥 NEW
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function ChatSidebar({ onNewChat, onClearChat, isOpen, onClose }: ChatSidebarProps) {
+export function ChatSidebar({
+  onNewChat,
+  onClearChat,
+  onSelectChat,
+  isOpen,
+  onClose,
+}: ChatSidebarProps) {
+  const [chats, setChats] = useState<any[]>([]);
+
+  // 🔥 LOAD CHAT LIST FROM FIREBASE
+  useEffect(() => {
+    const q = query(
+      collection(db, "conversations"),
+      orderBy("lastUpdated", "desc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setChats(data);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
     <>
       {/* Mobile overlay */}
@@ -34,7 +72,7 @@ export function ChatSidebar({ onNewChat, onClearChat, isOpen, onClose }: ChatSid
           <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
             <Zap className="w-4 h-4 text-primary" />
           </div>
-          <span className="text-lg font-semibold text-sidebar-accent-foreground tracking-tight">
+          <span className="text-lg font-semibold tracking-tight">
             AI Router
           </span>
         </div>
@@ -42,7 +80,10 @@ export function ChatSidebar({ onNewChat, onClearChat, isOpen, onClose }: ChatSid
         {/* New Chat */}
         <div className="px-3 py-3">
           <Button
-            onClick={() => { onNewChat(); onClose(); }}
+            onClick={() => {
+              onNewChat();
+              onClose();
+            }}
             className="w-full justify-start gap-2 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
             variant="ghost"
           >
@@ -51,18 +92,25 @@ export function ChatSidebar({ onNewChat, onClearChat, isOpen, onClose }: ChatSid
           </Button>
         </div>
 
-        {/* History */}
+        {/* 🔥 REAL CHAT HISTORY */}
         <div className="flex-1 overflow-y-auto px-3 space-y-1">
           <p className="text-xs uppercase tracking-wider text-muted-foreground px-2 py-2">
             Recent
           </p>
-          {DUMMY_HISTORY.map((item) => (
+
+          {chats.map((chat) => (
             <button
-              key={item.id}
-              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors text-left truncate"
+              key={chat.id}
+              onClick={() => {
+                onSelectChat(chat.id);
+                onClose();
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm hover:bg-sidebar-accent transition-colors text-left"
             >
-              <MessageSquare className="w-4 h-4 shrink-0 opacity-50" />
-              <span className="truncate">{item.title}</span>
+              <MessageSquare className="w-4 h-4 opacity-50" />
+              <span className="truncate">
+                {chat.Title || "Untitled Chat"}
+              </span>
             </button>
           ))}
         </div>

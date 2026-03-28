@@ -18,7 +18,8 @@ export interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
-  metrics?: MessageMetrics;
+  metrics?: any;
+  query?: string;
 }
 
 export interface MessageMetrics {
@@ -49,21 +50,22 @@ export interface ApiResponse {
 // 🔥 API CALL (REAL BACKEND)
 export async function sendMessage(
   query: string,
-  model: string
+  model: string,
+  use_rag: boolean
 ): Promise<ApiResponse> {
   const res = await fetch("http://127.0.0.1:8000/ask", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ query, model }),
+    body: JSON.stringify({ query, model, use_rag }),
   });
 
   if (!res.ok) {
     throw new Error("API request failed");
   }
 
-  return res.json();
+  return res.json(); // 🔥 VERY IMPORTANT
 }
 
 // ✅ MODEL LIST

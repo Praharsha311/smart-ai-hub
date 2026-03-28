@@ -1,16 +1,14 @@
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Copy, Check, Bot, User } from "lucide-react";
+import { Copy, Check, Bot, User, FileText } from "lucide-react";
 import { useState } from "react";
 import type { Message } from "@/lib/ai-router";
 import { MetricsBadge } from "./MetricsBadge";
-import { sendFeedback } from "@/lib/ai-router"; // 🔥 NEW
+import { sendFeedback } from "@/lib/ai-router";
 
 export function ChatMessage({ message }: { message: Message }) {
   const [copied, setCopied] = useState(false);
-
-  // 🔥 Feedback state
   const [comment, setComment] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loadingFeedback, setLoadingFeedback] = useState(false);
@@ -23,19 +21,24 @@ export function ChatMessage({ message }: { message: Message }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // 🔥 Feedback handler
   const handleFeedback = async (type: "like" | "dislike") => {
     if (!message.metrics) return;
 
     try {
       setLoadingFeedback(true);
 
-      await sendFeedback({
-        query: message.content, // ⚠️ later we can improve this
+      sendFeedback({
+        query: message.query,
         model: message.metrics.model,
         complexity: message.metrics.complexity,
         feedback: type,
         comment,
+        forced_complexity:
+          type === "dislike"
+            ? prompt(
+                "Which complexity should be used? (simple/moderate/advanced/complex)"
+              )
+            : null,
       });
 
       setSubmitted(true);
@@ -65,8 +68,19 @@ export function ChatMessage({ message }: { message: Message }) {
       </div>
 
       {/* Content */}
-      <div className={`flex flex-col gap-2 max-w-[75%] ${isUser ? "items-end" : ""}`}>
-        
+      <div
+        className={`flex flex-col gap-2 max-w-[75%] ${
+          isUser ? "items-end" : ""
+        }`}
+      >
+        {/* 🔥 RAG Indicator */}
+        {!isUser && (message as any).rag_used && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <FileText className="w-3 h-3" />
+            <span>Answer based on document</span>
+          </div>
+        )}
+
         {/* Message Bubble */}
         <div
           className={`rounded-2xl px-4 py-3 text-sm leading-relaxed break-words whitespace-pre-wrap ${
@@ -78,7 +92,7 @@ export function ChatMessage({ message }: { message: Message }) {
           {isUser ? (
             <p>{message.content}</p>
           ) : (
-            <div className="prose prose-invert prose-sm max-w-none prose-headings:text-foreground prose-p:text-card-foreground prose-strong:text-foreground prose-code:text-primary prose-blockquote:border-primary/30 prose-blockquote:text-muted-foreground">
+            <div className="prose prose-invert prose-sm max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {message.content || ""}
               </ReactMarkdown>
@@ -86,20 +100,23 @@ export function ChatMessage({ message }: { message: Message }) {
           )}
         </div>
 
-        {/* Copy button */}
+        {/* Copy */}
         {!isUser && (
           <button
             onClick={handleCopy}
-            className="self-start text-muted-foreground hover:text-foreground transition-colors p-1"
+            className="self-start text-muted-foreground hover:text-foreground p-1"
           >
-            {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? (
+              <Check className="w-3.5 h-3.5" />
+            ) : (
+              <Copy className="w-3.5 h-3.5" />
+            )}
           </button>
         )}
 
-        {/* 🔥 FEEDBACK UI */}
+        {/* Feedback */}
         {!isUser && message.metrics && !submitted && (
           <div className="flex flex-col gap-2 mt-2">
-            
             <div className="flex gap-2">
               <button
                 onClick={() => handleFeedback("like")}
@@ -123,20 +140,22 @@ export function ChatMessage({ message }: { message: Message }) {
               placeholder="Optional comment..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="px-2 py-1 text-xs rounded bg-muted text-foreground outline-none"
+              className="px-2 py-1 text-xs rounded bg-muted outline-none"
             />
           </div>
         )}
 
-        {/* ✅ Feedback Submitted */}
+        {/* Submitted */}
         {submitted && (
-          <div className="text-xs text-muted-foreground mt-1">
+          <div className="text-xs text-muted-foreground">
             ✅ Feedback submitted
           </div>
         )}
 
-        {/* Metrics */}
-        {message.metrics && <MetricsBadge metrics={message.metrics} />}
+        {/* 🔥 Metrics (SAFE RENDER) */}
+        {message.metrics && (
+          <MetricsBadge metrics={message.metrics} />
+        )}
       </div>
     </motion.div>
   );
