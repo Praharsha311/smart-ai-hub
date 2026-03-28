@@ -18,30 +18,44 @@ export default function Index() {
 
   useEffect(scrollToBottom, [messages, loading, scrollToBottom]);
 
-  const handleSend = async (content: string, model: ModelId) => {
-    const userMsg: Message = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content,
-      timestamp: new Date(),
-    };
-    setMessages((prev) => [...prev, userMsg]);
-    setLoading(true);
-
-    try {
-      const { response, metrics } = await sendMessage(content, model);
-      const aiMsg: Message = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: response,
-        timestamp: new Date(),
-        metrics,
-      };
-      setMessages((prev) => [...prev, aiMsg]);
-    } finally {
-      setLoading(false);
-    }
+ const handleSend = async (content: string, model: ModelId) => {
+  const userMsg: Message = {
+    id: crypto.randomUUID(),
+    role: "user",
+    content,
+    timestamp: new Date(),
   };
+
+  setMessages((prev) => [...prev, userMsg]);
+  setLoading(true);
+
+  try {
+    const res = await sendMessage(content, model);
+
+    console.log("API RESPONSE:", res); // 🔍 debug
+
+    const aiMsg: Message = {
+      id: crypto.randomUUID(),
+      role: "assistant",
+      content: res.answer, // ✅ FIX
+      timestamp: new Date(),
+      metrics: {
+        model: res.model,
+        complexity: res.complexity,
+        latency: res.latency,
+        cost: res.cost,
+        efficiency: res.efficiency,
+      },
+    };
+
+    setMessages((prev) => [...prev, aiMsg]);
+
+  } catch (err) {
+    console.error("Error:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleNewChat = () => setMessages([]);
   const handleClearChat = () => setMessages([]);

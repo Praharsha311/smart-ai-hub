@@ -1,14 +1,20 @@
 import { Bot, BarChart3, Zap, DollarSign, Gauge } from "lucide-react";
 import type { MessageMetrics, Complexity } from "@/lib/ai-router";
 
-const COMPLEXITY_CONFIG: Record<Complexity, { label: string; color: string; dot: string }> = {
+const COMPLEXITY_CONFIG: Record<string, { label: string; color: string; dot: string }> = {
   simple: { label: "Simple", color: "text-complexity-simple", dot: "🟢" },
-  medium: { label: "Medium", color: "text-complexity-medium", dot: "🟡" },
+  moderate: { label: "Moderate", color: "text-complexity-medium", dot: "🟡" },
+  advanced: { label: "Advanced", color: "text-complexity-medium", dot: "🟠" },
   complex: { label: "Complex", color: "text-complexity-complex", dot: "🔴" },
+  manual: { label: "Manual", color: "text-primary", dot: "⚙️" },
 };
 
 export function MetricsBadge({ metrics }: { metrics: MessageMetrics }) {
-  const cx = COMPLEXITY_CONFIG[metrics.complexity];
+  const cx = COMPLEXITY_CONFIG[metrics.complexity] || {
+  label: "Unknown",
+  color: "text-muted-foreground",
+  dot: "⚪",
+};
 
   return (
     <div className="flex flex-wrap gap-2 text-xs">
