@@ -45,7 +45,7 @@ export default function LandingPage() {
         onClick={() => navigate("/chat")}
         className="px-8 py-4 bg-green-500 text-black rounded-xl font-semibold text-lg hover:bg-green-600 shadow-lg"
       >
-        Try Demo
+        Chat
       </button>
 
       <button

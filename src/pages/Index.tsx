@@ -113,7 +113,7 @@ export default function Index() {
       );
 
       // 🤖 CALL AI (RAG untouched ✅)
-      const res = await sendMessage(content, model, useRag);
+      const res = await sendMessage(content, model, useRag, messages);
 
       // ✅ SAVE AI RESPONSE + METRICS
       await addDoc(

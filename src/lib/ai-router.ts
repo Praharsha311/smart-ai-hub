@@ -51,21 +51,25 @@ export interface ApiResponse {
 export async function sendMessage(
   query: string,
   model: string,
-  use_rag: boolean
-): Promise<ApiResponse> {
+  useRag: boolean
+) {
   const res = await fetch("http://127.0.0.1:8000/ask", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ query, model, use_rag }),
+    body: JSON.stringify({
+      query,
+      model,
+      use_rag: useRag, // 🔥 THIS IS THE FIX
+    }),
   });
 
   if (!res.ok) {
     throw new Error("API request failed");
   }
 
-  return res.json(); // 🔥 VERY IMPORTANT
+  return res.json();
 }
 
 // ✅ MODEL LIST

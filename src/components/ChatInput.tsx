@@ -25,12 +25,15 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
 
   const selectedModel = MODELS.find((m) => m.id === model)!;
 
-  // 🔥 SEND MESSAGE
+  // 🔥 SEND MESSAGE (UPDATED)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || disabled) return;
 
-    onSend(input.trim(), model, useRag);
+    // ✅ FORCE RAG if file exists
+    const shouldUseRag = fileName ? true : useRag;
+
+    onSend(input.trim(), model, shouldUseRag);
     setInput("");
   };
 
@@ -48,7 +51,9 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
         body: formData,
       });
 
-      setUseRag(true); // auto enable RAG
+      // ✅ AUTO ENABLE RAG
+      setUseRag(true);
+
     } catch (err) {
       console.error("Upload error:", err);
       setFileName(null);
@@ -115,7 +120,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
         <div className="flex gap-2 items-end">
           <div className="flex-1 flex items-center gap-2 bg-muted border border-border rounded-xl px-3 py-2">
 
-            {/* 📎 Attachment icon (ChatGPT style) */}
+            {/* 📎 Attachment */}
             <label className="cursor-pointer text-muted-foreground hover:text-foreground">
               <Paperclip className="w-4 h-4" />
               <input
