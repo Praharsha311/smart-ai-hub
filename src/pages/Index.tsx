@@ -189,7 +189,7 @@ export default function Index() {
               <Zap className="w-5 h-5 text-primary" />
               <div>
                 <h1 className="text-sm font-semibold">
-                  Smart AI Router
+                  OptiRoute AI
                 </h1>
                 <p className="text-xs text-muted-foreground">
                   Optimizing cost, speed & intelligence
@@ -217,7 +217,7 @@ export default function Index() {
                   <Zap className="w-8 h-8 text-primary" />
                 </div>
                 <h2 className="text-xl font-semibold">
-                  Smart AI Router
+                  OptiRoute AI
                 </h2>
                 <p className="text-sm text-muted-foreground max-w-md">
                   Chat normally or upload documents for RAG-based answers.

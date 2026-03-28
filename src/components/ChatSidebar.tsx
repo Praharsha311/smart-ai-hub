@@ -73,7 +73,7 @@ export function ChatSidebar({
             <Zap className="w-4 h-4 text-primary" />
           </div>
           <span className="text-lg font-semibold tracking-tight">
-            AI Router
+            Open Router
           </span>
         </div>
 

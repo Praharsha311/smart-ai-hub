@@ -238,7 +238,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#020617] text-white p-6">
 
-      <h1 className="text-3xl font-bold mb-6">🚀 AI Router Intelligence Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">🚀 OptiRoute AI Intelligent Dashboard</h1>
 
       {/* 🔝 TOP SECTION */}
       <div className="grid lg:grid-cols-3 gap-6">
